@@ -42,9 +42,10 @@ def test_section_released_in_phase_2_is_available_in_phase_8_of_same_step():
     #   t=1: T1 departs B wanting s0 (B->A); s0 occupied by T0 -> T1 waits 1 train-minute.
     #   t=2: phase 2 T0 releases s0 and arrives at B; phase 8 T1 enters s0, T0 enters s1.
     #   T1 arrives at A at 2 + 2 = 4; T0 arrives at C at 2 + 3 = 5.  Total waiting W = 1.
+    # (At t=0 HOLD is offered because T1 departs in 1 < 2 minutes; we grant T0.)
     sim = make_sim([((A, B, C), 0), ((B, A), 1)])
     seen = run_to_end(sim)
-    assert seen == []
+    assert [(d.t, d.candidates, d.can_hold) for d in seen] == [(0, (0,), True)]
     assert sim.trains[0].arrival_time == 5
     assert sim.trains[1].arrival_time == 4
     assert sim.trains[1].waiting == 1

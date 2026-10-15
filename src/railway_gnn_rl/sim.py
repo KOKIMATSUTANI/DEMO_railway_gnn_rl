@@ -94,11 +94,16 @@ class Scenario:
     max_time: int | None = None  # None -> provable completion bound (see RailwaySim)
 
 
+HOLD = -1  # action: grant nobody on the contested resource in this step
+
+
 @dataclass(frozen=True)
 class Decision:
     t: int
     section: int
     candidates: tuple[int, ...]  # legal competing train ids, ascending
+    can_hold: bool = False
+    group: int = 0               # resource key: 0 for single track, direction for double
 
 
 @dataclass(frozen=True)
@@ -212,13 +217,26 @@ class RailwaySim:
         d = self.decision
         if d is None:
             raise RuntimeError("no decision pending")
-        if train_id not in d.candidates:
+        if train_id == HOLD:
+            if not d.can_hold:
+                raise ValueError("HOLD is not a legal action for this decision")
+        elif train_id not in d.candidates:
             raise ValueError(f"train {train_id} is not a legal candidate {d.candidates}")
         self.decision = None
         self._acc_reward = 0.0
-        self._grant(train_id, d.section)
+        if train_id == HOLD:
+            self._held.add((d.section, d.group))
+        else:
+            self._grant(train_id, d.section)
         self._resolve()
         return self._acc_reward
+
+    def legal_actions(self) -> list[int]:
+        """Candidate train ids (ascending) followed by HOLD if it is allowed."""
+        d = self.decision
+        if d is None:
+            return []
+        return list(d.candidates) + ([HOLD] if d.can_hold else [])
 
     def position(self, i: int) -> tuple[str, int] | None:
         st = self.trains[i]
@@ -305,6 +323,7 @@ class RailwaySim:
                 st.status = "at_node"
                 self._log(4, i, "ready")
         self._entered: list[int] = []                              # phase 5
+        self._held: set[tuple[int, int]] = set()
         self._granted_in_pass = False
         self._todo_sections = self._requested_sections()
 
@@ -325,14 +344,17 @@ class RailwaySim:
                 s = self.infra.sections[sid]
                 legal = [i for i in self._requesters(sid) if self.can_enter(i, s)]  # 6
                 contested = None
-                for group in self._resource_groups(legal, s):                   # 7
-                    if self._all_fit(group, s):
+                for key, group in self._resource_groups(legal, s):              # 7
+                    if (sid, key) in self._held:
+                        continue
+                    hold_ok = self.hold_allowed(s, key, group)
+                    if not hold_ok and self._all_fit(group, s):
                         for i in group:
                             self._grant(i, sid)
                     elif contested is None:
-                        contested = group
+                        contested = Decision(self.t, sid, tuple(group), hold_ok, key)
                 if contested is not None:
-                    self.decision = Decision(self.t, sid, tuple(contested))
+                    self.decision = contested
                     return
                 self._todo_sections.pop(0)
                 if not self._todo_sections and self._granted_in_pass:
@@ -345,13 +367,54 @@ class RailwaySim:
             if not self.done:
                 self._begin_step(advance=True)
 
-    def _resource_groups(self, legal: list[int], s: Section) -> list[list[int]]:
+    def _resource_groups(self, legal: list[int], s: Section) -> list[tuple[int, list[int]]]:
         """Requests competing for the same resource: the whole section for single
-        track, each direction separately for double track."""
+        track (key 0), each direction separately for double track (key = direction)."""
         if s.kind == "single":
-            return [legal] if legal else []
-        groups = [[i for i in legal if self.direction_on(i, s) == d] for d in (1, -1)]
-        return [g for g in groups if g]
+            return [(0, legal)] if legal else []
+        groups = [(d, [i for i in legal if self.direction_on(i, s) == d]) for d in (1, -1)]
+        return [(d, g) for d, g in groups if g]
+
+    def _in_resource(self, s: Section, key: int, direction: int) -> bool:
+        return s.kind == "single" or direction == key
+
+    def competitors(self, s: Section, key: int, legal_group: list[int]) -> list[tuple[int, int]]:
+        """Trains that a grant on resource (s, key) would delay, with the number
+        of minutes until they request s (0 = requesting now but blocked):
+          * requesters of s that are currently illegal (blocked by occupancy);
+          * trains on a section whose *next* section is s, arriving in
+            fewer than s.travel_time minutes;
+          * pending trains starting with s whose departure is fewer than
+            s.travel_time minutes away.
+        """
+        out = []
+        specs = self.scenario.trains
+        for j, st in enumerate(self.trains):
+            route = specs[j].route
+            if st.status == "at_node":
+                if j in legal_group or self.next_section(j).id != s.id:
+                    continue
+                if self._in_resource(s, key, self.direction_on(j, s)) and not self.can_enter(j, s):
+                    out.append((j, 0))
+                continue
+            if st.status == "on_section":
+                k, eta = st.route_idx + 1, st.remaining
+            elif st.status == "pending":
+                k, eta = 0, specs[j].departure - self.t
+            else:
+                continue
+            if k + 1 >= len(route) or eta >= s.travel_time:
+                continue
+            a, b = route[k], route[k + 1]
+            if {a, b} != {s.u, s.v}:
+                continue
+            direction = 1 if (a, b) == (s.u, s.v) else -1
+            if self._in_resource(s, key, direction):
+                out.append((j, eta))
+        return out
+
+    def hold_allowed(self, s: Section, key: int, legal_group: list[int]) -> bool:
+        return bool(legal_group) and bool(self.competitors(s, key, legal_group))
 
     def _all_fit(self, legal: list[int], s: Section) -> bool:
         """True if all legal requesters can enter together (granted in id order)."""

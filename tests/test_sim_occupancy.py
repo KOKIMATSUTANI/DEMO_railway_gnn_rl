@@ -28,7 +28,9 @@ def test_single_track_capacity_two_allows_following_but_not_opposing_moves():
     infra = line_infra(kind0="single", cap0=2)
     sim = make_sim([((A, B), 0), ((A, B), 0), ((B, A), 1)], infra)
     seen = run_to_end(sim)
-    assert seen == []                                   # both A->B trains fit together
+    # Both A->B trains fit together; HOLD is offered because T2 departs in 1 < 2 min.
+    # Granting both (no hold) is checked here.
+    assert [(d.candidates, d.can_hold) for d in seen] == [((0, 1), True), ((1,), True)]
     assert sim.trains[0].arrival_time == 2 and sim.trains[1].arrival_time == 2
     # T2 is ready at 1 but s0 is occupied in the opposite direction until t=2.
     assert sim.trains[2].waiting == 1 and sim.trains[2].arrival_time == 4
