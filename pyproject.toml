@@ -12,6 +12,9 @@ dependencies = [
     "matplotlib>=3.8",
 ]
 
+[project.scripts]
+railway-demo = "railway_gnn_rl.cli:main"
+
 [dependency-groups]
 dev = ["pytest>=8"]
 
