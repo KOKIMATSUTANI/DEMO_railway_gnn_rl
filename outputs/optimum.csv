@@ -1,0 +1,71 @@
+set,scenario,status,total_waiting,episode_return,states_expanded,actions,wall_s
+evaluation,0,optimal,10,-10.0,555,"[4, 4, 3, 0, 1]",0.176
+evaluation,1,optimal,8,-8.0,113,"[4, 1]",0.038
+evaluation,2,optimal,7,-7.0,319,"[1, 2, 3]",0.129
+evaluation,3,optimal,11,-11.0,475,"[1, -1, 3, 2]",0.169
+evaluation,4,optimal,13,-13.0,459,"[4, 2, 3, 2, 1]",0.15
+evaluation,5,optimal,3,-3.0,51,"[1, 4]",0.024
+evaluation,6,optimal,7,-7.0,129,"[-1, 0, 0, 2]",0.048
+evaluation,7,optimal,9,-9.0,36,"[2, 1, 0]",0.015
+evaluation,8,optimal,18,-18.0,3613,"[3, 1, 0, 2]",1.571
+evaluation,9,optimal,12,-12.0,204,"[2, 2, 3, 1]",0.064
+evaluation,10,optimal,4,-4.0,21,"[3, 0]",0.009
+evaluation,11,optimal,13,-13.0,28,"[4, 4, 0]",0.014
+evaluation,12,optimal,8,-8.0,46,"[2, 0]",0.028
+evaluation,13,optimal,16,-16.0,466,"[2, 0, 2, 3, 1, 2]",0.2
+evaluation,14,optimal,1,-1.0,218,"[0, 2, 1]",0.109
+evaluation,15,optimal,25,-25.0,597,"[-1, -1, -1, -1, 2, 3, 0]",0.29
+evaluation,16,optimal,11,-11.0,92,"[4, 3, 1, 1]",0.028
+evaluation,17,optimal,30,-30.0,27,"[2, 0, 1]",0.021
+evaluation,18,optimal,4,-4.0,14,"[0, 4]",0.006
+evaluation,19,optimal,13,-13.0,417,"[0, 2, 0, 3]",0.135
+evaluation,20,optimal,21,-21.0,760,"[2, 1, 0, 0, 3]",0.404
+evaluation,21,optimal,9,-9.0,1030,"[2, 0, 4, 3]",0.463
+evaluation,22,optimal,12,-12.0,347,"[0, 0, -1, -1, 3, 4]",0.122
+evaluation,23,optimal,21,-21.0,47,"[3, 2, 1]",0.024
+evaluation,24,optimal,12,-12.0,116,"[2, 2, 0, 3]",0.05
+evaluation,25,optimal,6,-6.0,89,"[0, 1, 0]",0.037
+evaluation,26,optimal,11,-11.0,1954,"[4, 3, 2, 3]",0.827
+evaluation,27,optimal,23,-23.0,272,"[3, 3, 1, 2, 0, 3]",0.132
+evaluation,28,optimal,10,-10.0,323,"[2, 2, 3, 4]",0.099
+evaluation,29,optimal,8,-8.0,1119,"[3, 4, 1]",0.371
+evaluation,30,optimal,9,-9.0,80,"[2, 2, 4]",0.03
+evaluation,31,optimal,10,-10.0,1146,"[4, 4, 1, 0]",0.422
+evaluation,32,optimal,18,-18.0,20,"[4, 1, 2]",0.013
+evaluation,33,optimal,28,-28.0,11726,"[0, 0, 4, 4, 0, -1, -1, 2, 3]",3.394
+evaluation,34,optimal,12,-12.0,296,"[3, 1, 3, 4]",0.108
+evaluation,35,optimal,16,-16.0,1676,"[0, 1, 4, 4]",0.544
+evaluation,36,optimal,11,-11.0,96,"[-1, 4, -1, 2]",0.036
+evaluation,37,optimal,10,-10.0,146,"[3, -1, 2, 3, 0]",0.07
+evaluation,38,optimal,15,-15.0,1054,"[-1, 2, 3, 2, 0]",0.452
+evaluation,39,optimal,17,-17.0,971,"[1, 0, 1, 4]",0.381
+evaluation,40,optimal,11,-11.0,25,"[0, 0, 2]",0.011
+evaluation,41,optimal,12,-12.0,231,"[2, 2, 1, 4, 2, 1]",0.073
+evaluation,42,optimal,11,-11.0,190,"[1, 4]",0.075
+evaluation,43,optimal,5,-5.0,123,"[1, 4, 0]",0.056
+evaluation,44,optimal,13,-13.0,47,"[-1, 0, 1, 2]",0.022
+evaluation,45,optimal,32,-32.0,242,"[1, 3, 0, 1, 2]",0.141
+evaluation,46,optimal,2,-2.0,39,"[4, 1]",0.012
+evaluation,47,optimal,12,-12.0,579,"[3, -1, 0, 2, 3]",0.204
+evaluation,48,optimal,12,-12.0,889,"[4, 4, 3, -1, 3, 4, 2]",0.293
+evaluation,49,optimal,5,-5.0,8,"[4, 0]",0.004
+heldout,0,optimal,16,-16.0,656,"[2, 1, 3, 0]",0.356
+heldout,1,optimal,13,-13.0,193,"[3, 0, 0]",0.071
+heldout,2,optimal,19,-19.0,141,"[1, -1, 3, 1, 0]",0.066
+heldout,3,optimal,13,-13.0,1499,"[3, 0, 2, 0, 1, 2]",0.616
+heldout,4,optimal,14,-14.0,387,"[4, 3, 2, 1]",0.192
+heldout,5,optimal,3,-3.0,10,"[3, 2]",0.004
+heldout,6,optimal,14,-14.0,639,"[4, 3, -1, 3, 2, 4]",0.274
+heldout,7,optimal,21,-21.0,4138,"[1, -1, 2, 0, 2, 4, 0]",1.549
+heldout,8,optimal,18,-18.0,762,"[0, 4, 0, 4, -1, -1, 4, 0]",0.305
+heldout,9,optimal,11,-11.0,3135,"[1, 2, 4, 2, 1, 1]",1.06
+heldout,10,optimal,20,-20.0,202,"[2, 4, 4, 1]",0.088
+heldout,11,optimal,17,-17.0,496,"[0, 4, 3, 2, 3]",0.196
+heldout,12,optimal,14,-14.0,1192,"[0, 2, 2, 4, 0, 1]",0.316
+heldout,13,optimal,20,-20.0,14,"[3, 0, 1]",0.011
+heldout,14,optimal,9,-9.0,2196,"[-1, 1, 4, 1]",0.722
+heldout,15,optimal,17,-17.0,3549,"[0, 1, 3, 4, 0, 4, 3]",0.911
+heldout,16,optimal,39,-39.0,8701,"[2, 0, 3, 1, 2]",2.91
+heldout,17,optimal,13,-13.0,371,"[1, -1, 3, 4, 3]",0.132
+heldout,18,optimal,23,-23.0,2467,"[3, 1, 1, -1, -1, 2, 1, 3]",0.908
+heldout,19,optimal,7,-7.0,587,"[0, 2, 3]",0.183

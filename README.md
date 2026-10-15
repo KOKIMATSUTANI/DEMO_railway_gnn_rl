@@ -633,9 +633,11 @@ stagnation, not success. Per-run values: `outputs/sensitivity_runs.csv`.
 
 ### 9.7 Runtime (measured, 18-core CPU, 10 worker processes)
 
-Full pipeline `railway-demo all`: **2 min 42 s** wall clock (training 10 runs:
+Full pipeline `railway-demo all`: **2 min 42 s – 2 min 46 s** wall clock in three
+complete runs, all producing byte-identical `train_metrics.csv` and
+`summary.json` (stage times of the first run: training 10 runs:
 47 s; optimum: 12 s; evaluation total: 23 s; sensitivity 18 runs: 84 s; figures:
-2 s). One 500-episode training run takes ≈ 35–43 s on one core. The full
+2 s). The committed `outputs/` come from the run on commit `9c2bcd2` (clean worktree). One 500-episode training run takes ≈ 35–43 s on one core. The full
 training budget of the specification was used unchanged (500 episodes, 5 seeds).
 
 ---

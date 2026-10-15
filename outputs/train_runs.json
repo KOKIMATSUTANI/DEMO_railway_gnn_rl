@@ -1,0 +1,212 @@
+[
+  {
+    "kind": "gnn",
+    "seed": 0,
+    "wall_s": 40.273250102996826,
+    "val_curve": [
+      16.85,
+      16.9,
+      16.9,
+      16.7,
+      16.8,
+      16.8,
+      16.8,
+      16.9,
+      16.75,
+      16.75
+    ],
+    "converged": true,
+    "checkpoint": "outputs/checkpoints/gnn_seed0.pt",
+    "eval_mean_waiting": 13.46,
+    "eval_mean_delay": 8.2
+  },
+  {
+    "kind": "gnn",
+    "seed": 1,
+    "wall_s": 40.14756679534912,
+    "val_curve": [
+      17.1,
+      17.1,
+      17.1,
+      16.85,
+      16.9,
+      16.9,
+      16.9,
+      16.9,
+      16.9,
+      16.9
+    ],
+    "converged": true,
+    "checkpoint": "outputs/checkpoints/gnn_seed1.pt",
+    "eval_mean_waiting": 13.8,
+    "eval_mean_delay": 8.46
+  },
+  {
+    "kind": "gnn",
+    "seed": 2,
+    "wall_s": 40.22449827194214,
+    "val_curve": [
+      16.95,
+      16.85,
+      17.1,
+      16.9,
+      16.9,
+      16.9,
+      16.8,
+      16.9,
+      16.8,
+      16.9
+    ],
+    "converged": true,
+    "checkpoint": "outputs/checkpoints/gnn_seed2.pt",
+    "eval_mean_waiting": 13.68,
+    "eval_mean_delay": 8.28
+  },
+  {
+    "kind": "gnn",
+    "seed": 3,
+    "wall_s": 40.54038667678833,
+    "val_curve": [
+      18.4,
+      17.3,
+      17.2,
+      17.25,
+      16.8,
+      16.85,
+      16.95,
+      16.7,
+      16.6,
+      16.75
+    ],
+    "converged": true,
+    "checkpoint": "outputs/checkpoints/gnn_seed3.pt",
+    "eval_mean_waiting": 13.94,
+    "eval_mean_delay": 8.46
+  },
+  {
+    "kind": "gnn",
+    "seed": 4,
+    "wall_s": 40.74516010284424,
+    "val_curve": [
+      16.9,
+      22.2,
+      16.55,
+      16.7,
+      16.8,
+      16.75,
+      16.5,
+      16.7,
+      16.7,
+      16.6
+    ],
+    "converged": true,
+    "checkpoint": "outputs/checkpoints/gnn_seed4.pt",
+    "eval_mean_waiting": 13.66,
+    "eval_mean_delay": 8.28
+  },
+  {
+    "kind": "mlp",
+    "seed": 0,
+    "wall_s": 34.26022696495056,
+    "val_curve": [
+      16.85,
+      16.9,
+      16.75,
+      16.75,
+      16.75,
+      16.9,
+      16.9,
+      16.6,
+      16.6,
+      16.5
+    ],
+    "converged": true,
+    "checkpoint": "outputs/checkpoints/mlp_seed0.pt",
+    "eval_mean_waiting": 13.72,
+    "eval_mean_delay": 8.44
+  },
+  {
+    "kind": "mlp",
+    "seed": 1,
+    "wall_s": 38.24906635284424,
+    "val_curve": [
+      36.15,
+      20.95,
+      16.8,
+      16.8,
+      16.75,
+      16.7,
+      16.9,
+      16.9,
+      16.9,
+      16.7
+    ],
+    "converged": true,
+    "checkpoint": "outputs/checkpoints/mlp_seed1.pt",
+    "eval_mean_waiting": 13.94,
+    "eval_mean_delay": 8.46
+  },
+  {
+    "kind": "mlp",
+    "seed": 2,
+    "wall_s": 36.549646854400635,
+    "val_curve": [
+      22.1,
+      16.85,
+      18.5,
+      16.85,
+      16.85,
+      16.8,
+      16.8,
+      16.8,
+      16.8,
+      16.7
+    ],
+    "converged": true,
+    "checkpoint": "outputs/checkpoints/mlp_seed2.pt",
+    "eval_mean_waiting": 13.84,
+    "eval_mean_delay": 8.36
+  },
+  {
+    "kind": "mlp",
+    "seed": 3,
+    "wall_s": 33.72050857543945,
+    "val_curve": [
+      16.9,
+      16.9,
+      16.75,
+      16.6,
+      16.5,
+      16.5,
+      16.5,
+      16.55,
+      16.6,
+      16.5
+    ],
+    "converged": true,
+    "checkpoint": "outputs/checkpoints/mlp_seed3.pt",
+    "eval_mean_waiting": 13.54,
+    "eval_mean_delay": 8.26
+  },
+  {
+    "kind": "mlp",
+    "seed": 4,
+    "wall_s": 34.7232563495636,
+    "val_curve": [
+      16.8,
+      16.85,
+      16.75,
+      16.7,
+      16.65,
+      16.7,
+      16.7,
+      16.7,
+      16.75,
+      16.85
+    ],
+    "converged": true,
+    "checkpoint": "outputs/checkpoints/mlp_seed4.pt",
+    "eval_mean_waiting": 13.78,
+    "eval_mean_delay": 8.22
+  }
+]

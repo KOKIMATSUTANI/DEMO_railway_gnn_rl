@@ -1,0 +1,127 @@
+{
+  "train": {
+    "kind": "gnn",
+    "hidden": 32,
+    "layers": 2,
+    "lr": 0.001,
+    "entropy_coef": 0.01,
+    "adv_scale": 10.0,
+    "grad_clip": 1.0,
+    "delay_weight": 0.0,
+    "episodes": 500,
+    "val_every": 50
+  },
+  "train_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "kinds": [
+    "gnn",
+    "mlp"
+  ],
+  "convergence_criterion": "last 3 validation means within 5% of their mean",
+  "train_wall_s": 49.4,
+  "versions": {
+    "python": "3.13.13",
+    "torch": "2.14.1+cpu",
+    "torch_geometric": "2.8.1",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39"
+  },
+  "git": {
+    "commit": "9c2bcd2cc2afede243ff1189452f85201fab5995",
+    "dirty_worktree": false
+  },
+  "scenario_sets": {
+    "validation": {
+      "seed_base": 800000,
+      "n": 20,
+      "dep_high": 8
+    },
+    "evaluation": {
+      "seed_base": 900000,
+      "n": 50,
+      "dep_high": 8
+    },
+    "heldout": {
+      "seed_base": 700000,
+      "n": 20,
+      "dep_high": 4
+    }
+  },
+  "training_scenario_seed": "1_000_000 + 100_000*train_seed + episode",
+  "torch_threads_per_process": 1,
+  "evaluate_wall_s": 23.1,
+  "optimum_wall_s": 10.8,
+  "optimum_node_limit": 1000000,
+  "step_trace": {
+    "policy": "gnn seed 0",
+    "scenario": "evaluation #0"
+  },
+  "reproducibility": {
+    "description": "re-evaluation of saved checkpoints vs. the evaluation done right after training (mean total waiting)",
+    "max_abs_diff": 0.0,
+    "tolerance": 1e-09
+  },
+  "sensitivity": {
+    "settings": [
+      "base (L=2, H=32, lr=1e-3, wait)",
+      "layers=1",
+      "layers=3",
+      "hidden=64",
+      "lr=3e-3",
+      "reward=wait+delay (w=1)"
+    ],
+    "overrides": {
+      "base (L=2, H=32, lr=1e-3, wait)": {},
+      "layers=1": {
+        "layers": 1
+      },
+      "layers=3": {
+        "layers": 3
+      },
+      "hidden=64": {
+        "hidden": 64
+      },
+      "lr=3e-3": {
+        "lr": 0.003
+      },
+      "reward=wait+delay (w=1)": {
+        "delay_weight": 1.0
+      }
+    },
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "selection": "none - the main configuration was fixed before any evaluation"
+  },
+  "sensitivity_wall_s": 84.8,
+  "last_all_wall_s": 159.4,
+  "cli_args": {
+    "command": "all",
+    "out": "outputs",
+    "episodes": 500,
+    "val_every": 50,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "sens_seeds": [
+      0,
+      1,
+      2
+    ],
+    "eval_limit": null,
+    "workers": 10
+  }
+}
