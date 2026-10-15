@@ -53,7 +53,7 @@ request is legal (all sections empty), so some train enters.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 
 @dataclass(frozen=True)
@@ -123,6 +123,7 @@ class TrainState:
     direction: int = 0       # +1 if traversing u->v, -1 if v->u, 0 if not on a section
     remaining: int = 0       # remaining traversal minutes
     waiting: int = 0         # accumulated waiting train-minutes
+    at_node_since: int | None = None  # minute the train became ready / reached its node
     arrival_time: int | None = None
     delay: int | None = None  # max(0, arrival - scheduled arrival), set at arrival
 
@@ -163,9 +164,10 @@ class RailwaySim:
     the entire horizon.
     """
 
-    def __init__(self, scenario: Scenario, delay_weight: float = 0.0):
+    def __init__(self, scenario: Scenario, delay_weight: float = 0.0, record: bool = True):
         self.scenario = scenario
         self.delay_weight = float(delay_weight)
+        self.record = record  # keep event log and per-step snapshots
         self.infra = scenario.infra
         for i, tr in enumerate(scenario.trains):
             assert tr.id == i, "train ids must be 0..n-1 in order"
@@ -231,6 +233,30 @@ class RailwaySim:
         self._resolve()
         return self._acc_reward
 
+    def clone(self) -> "RailwaySim":
+        """Independent copy of the full dynamic state (static data is shared)."""
+        new = object.__new__(RailwaySim)
+        new.__dict__.update(self.__dict__)
+        new.trains = [replace(st) for st in self.trains]
+        new.occupants = [list(o) for o in self.occupants]
+        new._entered = list(self._entered)
+        new._held = set(self._held)
+        new._todo_sections = list(self._todo_sections)
+        new.step_rewards = list(self.step_rewards)
+        new.step_times = list(self.step_times)
+        new.events = list(self.events)
+        new.history = list(self.history)
+        return new
+
+    def state_key(self) -> tuple:
+        """Everything that determines future transitions and rewards (Markov state).
+        Waiting counters and past rewards are excluded: future rewards do not
+        depend on them."""
+        trains = tuple((st.status, st.route_idx, st.section, st.direction, st.remaining)
+                       for st in self.trains)
+        return (self.t, trains, tuple(sorted(self._entered)), frozenset(self._held),
+                tuple(self._todo_sections), self._granted_in_pass, self.decision)
+
     def legal_actions(self) -> list[int]:
         """Candidate train ids (ascending) followed by HOLD if it is allowed."""
         d = self.decision
@@ -294,7 +320,8 @@ class RailwaySim:
 
     # ------------------------------------------------------------ the phases
     def _log(self, phase: int, train: int, kind: str, section: int | None = None):
-        self.events.append(Event(self.t, phase, train, kind, section))
+        if self.record:
+            self.events.append(Event(self.t, phase, train, kind, section))
 
     def _begin_step(self, advance: bool) -> None:
         """Phases 1-5 (phase 1 only if `advance`)."""
@@ -310,6 +337,7 @@ class RailwaySim:
                     st.section, st.direction = None, 0
                     st.route_idx += 1
                     st.status = "at_node"
+                    st.at_node_since = self.t
         self._step_delay = 0
         for i, st in enumerate(self.trains):                       # phase 3
             if st.status == "at_node" and st.route_idx == len(specs[i].route) - 1:
@@ -321,6 +349,7 @@ class RailwaySim:
         for i, st in enumerate(self.trains):                       # phase 4
             if st.status == "pending" and specs[i].departure == self.t:
                 st.status = "at_node"
+                st.at_node_since = self.t
                 self._log(4, i, "ready")
         self._entered: list[int] = []                              # phase 5
         self._held: set[tuple[int, int]] = set()
@@ -452,13 +481,14 @@ class RailwaySim:
                 st.waiting += 1
                 self.total_waiting += 1
         self.step_times.append(self.t)                             # phase 10
-        self.history.append(StepSnapshot(
-            self.t,
-            tuple(TrainSnapshot(st.status, self.position(i), st.route_idx, st.remaining,
-                                st.waiting, st.direction)
-                  for i, st in enumerate(self.trains)),
-            tuple(tuple(o) for o in self.occupants),
-            self.total_waiting))
+        if self.record:
+            self.history.append(StepSnapshot(
+                self.t,
+                tuple(TrainSnapshot(st.status, self.position(i), st.route_idx, st.remaining,
+                                    st.waiting, st.direction)
+                      for i, st in enumerate(self.trains)),
+                tuple(tuple(o) for o in self.occupants),
+                self.total_waiting))
         if all(st.status == "finished" for st in self.trains):
             self.done, self.termination = True, "success"
         elif not self._entered and self.is_deadlocked():
