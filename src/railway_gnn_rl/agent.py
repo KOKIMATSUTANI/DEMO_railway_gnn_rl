@@ -119,6 +119,14 @@ def run_episode(scenario: Scenario, policy, mode: str = "greedy", generator=None
     return record_of(sim, len(trans), holds), trans
 
 
+def policy_dispatcher(policy):
+    """Greedy (argmax) learned policy as a dispatcher `sim -> action` (no gradients)."""
+    def dispatch(sim: RailwaySim) -> int:
+        with torch.no_grad():
+            return select_action(policy, sim, "greedy")[0]
+    return dispatch
+
+
 class ReinforceTrainer:
     def __init__(self, policy, lr=1e-3, entropy_coef=0.01, adv_scale=10.0, grad_clip=1.0,
                  delay_weight=0.0, seed=0):
