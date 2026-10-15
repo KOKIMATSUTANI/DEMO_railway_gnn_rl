@@ -33,3 +33,7 @@ explicit = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["integration: end-to-end tests (slower)"]
+filterwarnings = [
+    "ignore::DeprecationWarning:torch_geometric.inspector",
+    "ignore:`torch.jit.script` is deprecated:FutureWarning",
+]
