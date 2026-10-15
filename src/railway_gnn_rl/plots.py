@@ -28,6 +28,7 @@ def _style(ax, title, xlabel, ylabel):
     ax.set_xlabel(xlabel, color=INK2)
     ax.set_ylabel(ylabel, color=INK2)
     ax.grid(True, color=GRID, linewidth=0.6)
+    ax.set_axisbelow(True)
     ax.tick_params(colors=INK2)
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
@@ -157,6 +158,7 @@ def plot_sensitivity(table, path):
                 color=SERIES["gnn"], ecolor=INK2, capsize=4, markersize=7)
     ax.set_yticks(y, names)
     ax.invert_yaxis()
-    _style(ax, "F. Sensitivity: validation-set mean total waiting (mean of seeds, 95% t-CI)",
+    _style(ax, "F. Sensitivity study: validation-set mean total waiting\n"
+               "(dot = mean over training seeds, bar = 95% t-interval over seeds)",
            "mean total waiting time on validation set (train-min)", "setting")
     _save(fig, path)

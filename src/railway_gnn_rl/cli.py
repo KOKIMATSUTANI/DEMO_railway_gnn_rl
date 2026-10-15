@@ -27,7 +27,7 @@ import torch
 
 from . import baselines as B
 from .agent import policy_dispatcher, run_episode
-from .experiment import (EVAL_COLUMNS, SETS, TRAIN_COLUMNS, TrainConfig, evaluation_rows,
+from .experiment import (EVAL_COLUMNS, SETS, TRAIN_COLUMNS, TrainConfig, _paired, evaluation_rows,
                          load_scenarios, save_scenarios, scenario_set, summarize, train_run,
                          write_csv)
 from .models import make_policy
@@ -216,7 +216,15 @@ def _summaries(per_set_rows, opt_rows, seeds):
                 "mean_decisions": float(np.mean([r["decisions"] for r in sel])) if sel else None,
             }
             s[name].update(extra[name])
+        gnn_vs_mlp = None
+        if per["gnn"] and per["mlp"]:
+            # same seed number = same sequence of training scenarios -> paired by seed
+            seed_diff = [a - b for a, b in zip(seed_level["gnn"]["per_seed_mean_waiting"],
+                                               seed_level["mlp"]["per_seed_mean_waiting"])]
+            gnn_vs_mlp = {**_paired(per["gnn"], per["mlp"]),
+                          "per_seed_diff": seed_diff, "seed_level_t_ci": mean_ci_t(seed_diff)}
         out[set_name] = {"n_scenarios": n, "n_optimum_computed": len(ok),
+                         "gnn_vs_mlp": gnn_vs_mlp,
                          "optimum_not_computed": [k for k in range(n) if k not in ok],
                          "dispatchers": s, "learned_seed_level": seed_level,
                          "paired_scenarios_gnn_minus_fcfs":
@@ -254,6 +262,13 @@ def _markdown(summary) -> str:
             per_seed = ", ".join(_fmt(x) for x in sl["per_seed_mean_waiting"])
             lines.append(f"- **{kind}**: per seed [{per_seed}] -> mean {_fmt(sl['mean'])} "
                          f"[{_fmt(sl['t_ci_lo'])}, {_fmt(sl['t_ci_hi'])}] (n = {sl['n_seeds']})")
+        a = s.get("gnn_vs_mlp")
+        if a:
+            m, lo, hi = a["seed_level_t_ci"]
+            lines += ["", f"Ablation GNN − MLP: per-scenario paired mean diff {_fmt(a['mean_diff'])} "
+                          f"[{_fmt(a['ci_lo'])}, {_fmt(a['ci_hi'])}] (bootstrap), Wilcoxon p = "
+                          f"{_fmt(a['wilcoxon_p'], 4)}, d_z = {_fmt(a['cohens_dz'])}; seed level "
+                          f"{_fmt(m)} [{_fmt(lo)}, {_fmt(hi)}] (t-interval over paired seeds)"]
         lines.append("")
     return "\n".join(lines)
 

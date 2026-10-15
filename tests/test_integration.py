@@ -68,3 +68,6 @@ def test_cli_pipeline_smoke_run_writes_all_outputs(tmp_path):
     assert cfg["reproducibility"]["max_abs_diff"] <= 1e-9
     assert "torch" in cfg["versions"] and "train" in cfg
     assert all(r["termination"] == "success" for r in ev)
+    summary = json.loads((out / "summary.json").read_text())
+    abl = summary["evaluation"]["gnn_vs_mlp"]                          # ablation, paired
+    assert {"mean_diff", "ci_lo", "ci_hi", "wilcoxon_p", "cohens_dz", "seed_level_t_ci"} <= set(abl)
