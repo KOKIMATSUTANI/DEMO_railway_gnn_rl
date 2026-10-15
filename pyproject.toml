@@ -1,0 +1,35 @@
+[project]
+name = "railway-gnn-rl"
+version = "0.1.0"
+description = "Educational demo: GNN + reinforcement learning for a small railway dispatching problem"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "torch>=2.4",
+    "torch-geometric>=2.6",
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "matplotlib>=3.8",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/railway_gnn_rl"]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: end-to-end tests (slower)"]
