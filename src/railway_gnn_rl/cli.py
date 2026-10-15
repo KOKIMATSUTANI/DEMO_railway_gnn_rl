@@ -75,8 +75,9 @@ def _git() -> dict:
     try:
         h = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
                            check=True).stdout.strip()
-        dirty = bool(subprocess.run(["git", "status", "--porcelain"], capture_output=True,
-                                    text=True).stdout.strip())
+        # outputs/ is written by this very run and does not count as a code change
+        dirty = bool(subprocess.run(["git", "status", "--porcelain", "--", ".", ":!outputs"],
+                                    capture_output=True, text=True).stdout.strip())
         return {"commit": h, "dirty_worktree": dirty}
     except Exception:  # noqa: BLE001 - git is optional
         return {"commit": None, "dirty_worktree": None}
