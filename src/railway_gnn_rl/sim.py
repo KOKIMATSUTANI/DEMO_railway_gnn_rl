@@ -119,6 +119,7 @@ class TrainState:
     remaining: int = 0       # remaining traversal minutes
     waiting: int = 0         # accumulated waiting train-minutes
     arrival_time: int | None = None
+    delay: int | None = None  # max(0, arrival - scheduled arrival), set at arrival
 
 
 @dataclass(frozen=True)
@@ -145,8 +146,21 @@ def running_time(infra: Infrastructure, route: tuple[int, ...]) -> int:
 
 
 class RailwaySim:
-    def __init__(self, scenario: Scenario):
+    """Reward of the step at time t (booked in phase 10):
+
+        r_t = -(W_t - W_{t-1})                       (waiting increment, train-minutes)
+              - delay_weight * sum(delay of trains finishing at t)   (optional, default 0)
+              - unfinished_penalty * #unfinished      (only on truncation or deadlock)
+
+    With delay_weight = 0 and no truncation/deadlock the undiscounted episode
+    return equals -W_T, the negative total waiting time.  `unfinished_penalty`
+    equals `max_time`, i.e. each unfinished train is charged as if it had waited
+    the entire horizon.
+    """
+
+    def __init__(self, scenario: Scenario, delay_weight: float = 0.0):
         self.scenario = scenario
+        self.delay_weight = float(delay_weight)
         self.infra = scenario.infra
         for i, tr in enumerate(scenario.trains):
             assert tr.id == i, "train ids must be 0..n-1 in order"
@@ -159,6 +173,15 @@ class RailwaySim:
         # so the makespan is <= max departure + sum of all running times.
         self.max_time = scenario.max_time if scenario.max_time is not None else (
             max(tr.departure for tr in scenario.trains) + sum(self.run_times))
+        self.unfinished_penalty = self.max_time
+
+    @property
+    def total_delay(self) -> int:
+        return sum(st.delay or 0 for st in self.trains)
+
+    @property
+    def episode_return(self) -> float:
+        return float(sum(self.step_rewards))
 
     # ------------------------------------------------------------------ setup
     def reset(self) -> None:
@@ -172,20 +195,30 @@ class RailwaySim:
         self.events: list[Event] = []
         self.step_times: list[int] = []
         self.history: list[StepSnapshot] = []
+        self.step_rewards: list[float] = []
+        self._acc_reward = 0.0
         self._begin_step(advance=False)
         self._resolve()
+        self.reward_before_first_decision = self._acc_reward
 
     # ------------------------------------------------------------ public API
-    def apply(self, train_id: int) -> None:
-        """Grant the contested section of the pending decision to `train_id`."""
+    def apply(self, train_id: int) -> float:
+        """Grant the contested section of the pending decision to `train_id`.
+
+        Returns the sum of the step rewards of all steps completed between this
+        decision and the next one (or the end of the episode).  The step in which
+        the decision was taken completes after the decision and is included here.
+        """
         d = self.decision
         if d is None:
             raise RuntimeError("no decision pending")
         if train_id not in d.candidates:
             raise ValueError(f"train {train_id} is not a legal candidate {d.candidates}")
         self.decision = None
+        self._acc_reward = 0.0
         self._grant(train_id, d.section)
         self._resolve()
+        return self._acc_reward
 
     def position(self, i: int) -> tuple[str, int] | None:
         st = self.trains[i]
@@ -259,10 +292,13 @@ class RailwaySim:
                     st.section, st.direction = None, 0
                     st.route_idx += 1
                     st.status = "at_node"
+        self._step_delay = 0
         for i, st in enumerate(self.trains):                       # phase 3
             if st.status == "at_node" and st.route_idx == len(specs[i].route) - 1:
                 st.status = "finished"
                 st.arrival_time = self.t
+                st.delay = max(0, self.t - self.scheduled_arrival[i])
+                self._step_delay += st.delay
                 self._log(3, i, "finish")
         for i, st in enumerate(self.trains):                       # phase 4
             if st.status == "pending" and specs[i].departure == self.t:
@@ -347,6 +383,7 @@ class RailwaySim:
 
     def _end_step(self) -> None:
         """Phases 9-10."""
+        w_before = self.total_waiting
         for i, st in enumerate(self.trains):                       # phase 9
             if st.status == "at_node":
                 st.waiting += 1
@@ -363,3 +400,11 @@ class RailwaySim:
             self.done, self.termination = True, "success"
         elif not self._entered and self.is_deadlocked():
             self.done, self.termination = True, "deadlock"
+        elif self.t >= self.max_time:
+            self.done, self.termination = True, "truncated"
+        reward = -float(self.total_waiting - w_before) - self.delay_weight * self._step_delay
+        if self.termination in ("deadlock", "truncated"):
+            n_unfinished = sum(st.status != "finished" for st in self.trains)
+            reward -= self.unfinished_penalty * n_unfinished
+        self.step_rewards.append(reward)
+        self._acc_reward += reward
